@@ -2,6 +2,7 @@
 import irc.bot
 import irc.strings
 import time
+import os
 import datetime
 from tprinter import *
 import traceback
