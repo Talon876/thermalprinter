@@ -1,4 +1,9 @@
-from PIL import Image, ImageDraw, ImageFont
+#!/usr/bin/python
+import platform
+if 'arm' in platform.machine():
+    import Image, ImageDraw, ImageFont
+else:
+    from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import string
 
@@ -24,7 +29,12 @@ class ImageGenerator(object):
 
         image = Image.new('1', (PRINTER_WIDTH, height + glyph_h/3), color='white')
         draw = ImageDraw.Draw(image)
-        draw.text([0, 0], '\n'.join(msg_lines), font=font)
+
+        y = 0
+        for line in msg_lines:
+            h = font.getsize(line)[1]
+            draw.text([0, y], line, font=font)
+            y += h
         return image
 
     def render_image_code(self, image_code, pixel_size=8):
