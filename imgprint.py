@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from tprinter import *
+import platform
 if 'arm' in platform.machine():
     import Image
 else:
     from PIL import Image
+from tprinter import *
 
 printer = ThermalPrinter()
 printer.set_defaults()
