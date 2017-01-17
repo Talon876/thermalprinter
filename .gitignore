@@ -89,3 +89,8 @@ ENV/
 .ropeproject
 
 .idea
+
+*.bmp
+*.jpg
+*.ttf
+in.png
