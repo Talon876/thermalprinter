@@ -86,7 +86,7 @@ def convert(fname='in.png'):
     new_height = int(ratio * h)
     print('Resizing to {}px tall'.format(new_height, ratio))
     out_img = out_img.resize((PRINTER_WIDTH, new_height))
-    out_img.save('out.bmp')
+    return out_img
 
 
 def main():
