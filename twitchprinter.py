@@ -1,25 +1,26 @@
 #!/usr/bin/python
 import irc.bot
 import irc.strings
-import os
 import time
 import datetime
 from tprinter import *
 import traceback
+import imagegen
+from PIL import ImageFont
 
-printer = ThermalPrinter('/dev/serial0', 19200, timeout=5)
+
+printer = ThermalPrinter()
+admins = ['talon876']
+
 
 class PrinterBot(irc.bot.SingleServerIRCBot):
     def __init__(self, channel, nickname, server, port=6667, password=None):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port, password)], nickname, nickname)
         self.channel = channel
-        self.bold = False
-        printer.sleep()
-        printer.wake()
-        printer.setDefault()
+        printer.set_defaults()
         self.logtime = int(time.time())
-        #printer.println('Joining {}'.format(self.channel))
-        #printer.println(datetime.datetime.now().strftime('%c'))
+        self.gen = imagegen.ImageGenerator()
+        self.font = ImageFont.truetype('fonts/hack-bold.ttf', 24)
 
     def on_welcome(self, c, e):
         print('Joining channel {}'.format(self.channel))
@@ -51,44 +52,28 @@ class PrinterBot(irc.bot.SingleServerIRCBot):
         cmd = msg.split(' ')[0].lower()
         arg = msg.replace(cmd + ' ', '')
         if cmd == 'print':
-            printer.println(arg)
-        if cmd == 'append' or cmd == 'write':
-            printer._print(arg)
-        elif cmd == 'left':
-            printer.justify('L')
-        elif cmd == 'right':
-            printer.justify('R')
-        elif cmd == 'center':
-            printer.justify('C')
+            img = self.gen.render_string(arg, self.font)
+            printer.print_image(img)
+        if cmd == 'image':
+            img = self.gen.render_image_code(arg)
+            printer.print_image(img)
         elif cmd == 'moar':
-            if e.source.nick == 'talon876':
-                printer.feed(1)
-        elif cmd == 'large':
-            printer.setSize('L')
-        elif cmd == 'medium':
-            printer.setSize('M')
-        elif cmd == 'small':
-            printer.setSize('S')
+            if e.source.nick in admins:
+                printer.linefeed(1)
         elif cmd == 'reset':
-            printer.sleep()
-            printer.wake()
-            printer.setDefault()
-        elif cmd == 'bold':
-            if self.bold:
-                printer.boldOn()
-            else:
-                printer.boldOff()
-            self.bold = not self.bold
+            if e.source.nick in admins:
+                printer.sleep()
+                printer.wake()
+                printer.set_defaults()
 
         self.append_log(log)
         
         now = int(time.time())
         if now - self.logtime > 30 * 60:
-            printer.setDefault()
-            #printer.println(datetime.datetime.now().strftime('%c'))
+            printer.set_defaults()
             self.logtime = now
-            printer.feed(1)
-            
+            printer.linefeed(1)
+
 
 def main():
     token = os.environ.get('TOKEN')
