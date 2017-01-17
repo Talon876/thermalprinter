@@ -10,7 +10,7 @@ class ImageGenerator(object):
     def __init__(self):
         self.wrapper = textwrap.TextWrapper()
 
-    def render_string(self, msg, font_path=None, font_size=24, font=None, accurate=True):
+    def render_string(self, msg, font=None, font_path=None, font_size=24, accurate=True):
         font = font if font is not None else ImageFont.truetype(font_path, font_size)
         # w is the widest and y is the tallest
         glyph_w, glyph_h = font.getsize('w')[0], font.getsize('y')[1]
