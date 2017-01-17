@@ -82,7 +82,7 @@ def convert(fname='in.png'):
 def main():
     gen = ImageGenerator()
     font = ImageFont.truetype('fonts/hack-bold.ttf', 36)
-    image = gen.render_string('Hello, World!', font=font)
+    image = gen.render_string('Well *he* roped ME in to this!', font=font)
     image.save('out.bmp')
 
 
