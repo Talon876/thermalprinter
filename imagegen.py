@@ -42,7 +42,7 @@ class ImageGenerator(object):
         img = Image.new('1', (PRINTER_WIDTH, 64), color='white')
         draw = ImageDraw.Draw(img)
 
-        for ty, row in enumerate(chunks(image_data, 48)):
+        for ty, row in enumerate(chunks(image_data, PRINTER_WIDTH/pixel_size)):
             for tx, cell in enumerate(row):
                 if cell == '1':
                     x, y = tx*pixel_size, ty*pixel_size
