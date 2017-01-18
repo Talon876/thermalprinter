@@ -27,7 +27,7 @@ class ImageGenerator(object):
         # otherwise just count each line as the height of a 'y'
         height = sum([font.getsize(h)[1] for h in msg_lines]) if accurate else glyph_h * len(msg_lines)
 
-        image = Image.new('1', (PRINTER_WIDTH, height + glyph_h/3), color='white')
+        image = Image.new('1', (PRINTER_WIDTH, height), color='white')
         draw = ImageDraw.Draw(image)
 
         y = 0
