@@ -352,7 +352,7 @@ class ThermalPrinter(object):
         w, h = img.size
         self.print_bitmap(data, w, h)
 
-    def print_bitmap(self, pixels, w, h, output_png=False):
+    def print_bitmap(self, pixels, w, h, output_png=False, do_lf=False):
         """ Best to use images that have a pixel width of 384 as this corresponds
             to the printer row width.
 
@@ -376,17 +376,18 @@ class ThermalPrinter(object):
             test_img = Image.new('RGB', (384, h))
             draw = ImageDraw.Draw(test_img)
 
-        self.linefeed()
+        if do_lf:
+            self.linefeed()
 
         black_and_white_pixels = self.convert_pixel_array_to_binary(pixels, w, h)
         print_bytes = []
 
         # read the bytes into an array
         for rowStart in xrange(0, h, 256):
-            chunkHeight = 255 if (h - rowStart) > 255 else h - rowStart
-            print_bytes += (18, 42, chunkHeight, 48)
+            chunk_height = 255 if (h - rowStart) > 255 else h - rowStart
+            print_bytes += (18, 42, chunk_height, 48)
 
-            for i in xrange(0, 48 * chunkHeight):
+            for i in xrange(0, 48 * chunk_height):
                 # read one byte in
                 byt = 0
                 for xx in xrange(8):
