@@ -8,6 +8,7 @@ from tprinter import *
 import traceback
 import imagegen
 from PIL import ImageFont
+import record
 
 
 printer = ThermalPrinter()
@@ -47,6 +48,8 @@ class PrinterBot(irc.bot.SingleServerIRCBot):
 
     def handle_message(self, c, e):
         msg = e.arguments[0]
+        nick = e.source.nick
+        record.log_message(nick, msg)
         now = datetime.datetime.now().strftime('%c')
         log = '[{}] {}: {}'.format(now, e.source.nick, msg)
         print(log)
@@ -59,10 +62,10 @@ class PrinterBot(irc.bot.SingleServerIRCBot):
             img = self.gen.render_image_code(arg)
             printer.print_image(img)
         elif cmd == 'moar':
-            if e.source.nick in admins:
+            if nick in admins:
                 printer.linefeed(1)
         elif cmd == 'reset':
-            if e.source.nick in admins:
+            if nick in admins:
                 printer.sleep()
                 printer.wake()
                 printer.set_defaults()
@@ -78,6 +81,7 @@ class PrinterBot(irc.bot.SingleServerIRCBot):
 
 def main():
     token = os.environ.get('TOKEN')
+    record.init_db('twitchchat.db')
     bot = PrinterBot('#talon876', 'talon876', 'irc.chat.twitch.tv', password=token)
     bot.start()
 
