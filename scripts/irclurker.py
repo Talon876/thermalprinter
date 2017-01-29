@@ -5,7 +5,6 @@ import irc.strings
 import traceback
 import record
 
-
 class LurkerBot(irc.bot.SingleServerIRCBot):
     def __init__(self, channel, nickname, server, port=6667, password=None):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port, password)], nickname, nickname)
