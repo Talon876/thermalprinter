@@ -19,7 +19,6 @@ def initialize(sender=None, headers=None, body=None, **kwargs):
 @celeryapp.task
 def print_message(msg):
     easy_print(printer, msg, fonts['hack-bold'], 24)
-    printer.print_text(msg)
 
 @celeryapp.task
 def log_message(msg):
