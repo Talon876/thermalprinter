@@ -5,6 +5,8 @@ import irc.strings
 import traceback
 from argparse import ArgumentParser
 
+import actions
+
 class LurkerBot(irc.bot.SingleServerIRCBot):
     def __init__(self, channel, nickname, server, port=6667, password=None):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port, password)], nickname, nickname)
@@ -29,9 +31,10 @@ class LurkerBot(irc.bot.SingleServerIRCBot):
             traceback.print_exc()
 
     def handle_message(self, c, e):
-        msg = e.arguments[0]
         nick = e.source.nick
-        print('{}: {}'.format(nick, msg))
+        msg = '{}: {}'.format(nick, e.arguments[0])
+        print(msg)
+        actions.log_message.delay(msg)
 
 
 def main():

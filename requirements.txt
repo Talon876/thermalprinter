@@ -2,3 +2,4 @@ irc
 peewee
 pyserial
 pillow
+celery
