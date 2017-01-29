@@ -34,7 +34,7 @@ class LurkerBot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         msg = '{}: {}'.format(nick, e.arguments[0])
         print(msg)
-        actions.log_message.delay(msg)
+        actions.print_message.delay(msg)
 
 
 def main():
