@@ -9,5 +9,10 @@ setup(
     packages=['tprinter', 'tprinterbot'],
     install_requires=required_packages,
     include_package_data=True,
+    entry_points= {
+        'console_scripts': [
+            'irclurker=tprinterbot:irclurker.main'
+        ]
+    }
 )
 

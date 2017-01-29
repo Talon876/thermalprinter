@@ -10,10 +10,8 @@ import imagegen
 from PIL import ImageFont
 import record
 
-
 printer = ThermalPrinter()
 admins = ['talon876']
-
 
 class PrinterBot(irc.bot.SingleServerIRCBot):
     def __init__(self, channel, nickname, server, port=6667, password=None):

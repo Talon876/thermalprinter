@@ -1,0 +1,2 @@
+from irclurker import LurkerBot
+
