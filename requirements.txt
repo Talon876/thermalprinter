@@ -1,3 +1,4 @@
 irc
 peewee
 pyserial
+pillow

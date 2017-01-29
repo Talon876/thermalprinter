@@ -4,10 +4,7 @@ import platform
 import textwrap
 import string
 
-if 'arm' in platform.machine():
-    import Image, ImageDraw, ImageFont
-else:
-    from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 import tprinter
 

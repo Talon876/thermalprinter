@@ -3,10 +3,9 @@ from argparse import ArgumentParser
 import serial
 import platform
 import traceback
-if 'arm' in platform.machine():
-    import Image
-else:
-    from PIL import Image
+
+from PIL import Image
+
 from tprinter import ThermalPrinter
 from imagegen import ImageGenerator
 from imagegen import fonts
