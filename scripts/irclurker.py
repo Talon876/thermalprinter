@@ -3,7 +3,6 @@ import os
 import irc.bot
 import irc.strings
 import traceback
-import record
 
 class LurkerBot(irc.bot.SingleServerIRCBot):
     def __init__(self, channel, nickname, server, port=6667, password=None):
@@ -31,15 +30,14 @@ class LurkerBot(irc.bot.SingleServerIRCBot):
     def handle_message(self, c, e):
         msg = e.arguments[0]
         nick = e.source.nick
-        record.log_message(nick, msg)
         print('{}: {}'.format(nick, msg))
 
 
 def main():
-    record.init_db('lurker.db')
-    token = os.environ.get('TOKEN')
+    token = os.environ.get('IRC_PASSWORD')
     bot = LurkerBot('#talon876', 'talon876', 'irc.chat.twitch.tv', password=token)
     bot.start()
 
 if __name__=='__main__':
     main()
+
