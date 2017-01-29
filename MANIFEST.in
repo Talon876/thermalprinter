@@ -1,0 +1,2 @@
+include tprinter/files/*
+include tprinter/fonts/*

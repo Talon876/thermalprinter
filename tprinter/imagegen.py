@@ -1,14 +1,19 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+import os
 import platform
+import textwrap
+import string
+
 if 'arm' in platform.machine():
     import Image, ImageDraw, ImageFont
 else:
     from PIL import Image, ImageDraw, ImageFont
-import textwrap
-import string
+
+import tprinter
 
 PRINTER_WIDTH = 384
-
+font_files = [f for f in os.listdir(os.path.join(os.path.split(__file__)[0], 'fonts'))]
+fonts = {os.path.splitext(f)[0]: os.path.join(os.path.split(__file__)[0], 'fonts', f) for f in font_files}
 
 class ImageGenerator(object):
 
@@ -42,7 +47,7 @@ class ImageGenerator(object):
         img = Image.new('1', (PRINTER_WIDTH, 64), color='white')
         draw = ImageDraw.Draw(img)
 
-        for ty, row in enumerate(chunks(image_data, PRINTER_WIDTH/pixel_size)):
+        for ty, row in enumerate(_chunks(image_data, PRINTER_WIDTH/pixel_size)):
             for tx, cell in enumerate(row):
                 if cell == '1':
                     x, y = tx*pixel_size, ty*pixel_size
@@ -67,7 +72,7 @@ class ImageGenerator(object):
         return combined_sizes
 
 
-def chunks(l, n):
+def _chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
@@ -91,7 +96,7 @@ def convert(fname='in.png'):
 
 def main():
     gen = ImageGenerator()
-    font = ImageFont.truetype('fonts/hack-bold.ttf', 36)
+    font = ImageFont.truetype(fonts['hack-bold'], 36)
     image = gen.render_string('Well *he* roped ME in to this!', font=font)
     image.save('out.bmp')
 

@@ -1,4 +1,5 @@
 irc
 peewee
 PIL
+pyserial
 
