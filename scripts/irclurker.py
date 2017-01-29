@@ -3,6 +3,7 @@ import os
 import irc.bot
 import irc.strings
 import traceback
+from argparse import ArgumentParser
 
 class LurkerBot(irc.bot.SingleServerIRCBot):
     def __init__(self, channel, nickname, server, port=6667, password=None):
@@ -34,9 +35,27 @@ class LurkerBot(irc.bot.SingleServerIRCBot):
 
 
 def main():
-    token = os.environ.get('IRC_PASSWORD')
-    bot = LurkerBot('#talon876', 'talon876', 'irc.chat.twitch.tv', password=token)
-    bot.start()
+    ap = ArgumentParser(description='Lurk IRC channels and print out messages.')
+
+    ap.add_argument('--channel', '-c',
+            help='The channel to join')
+    ap.add_argument('--nick', '-n',
+            help='The nickname to use')
+    ap.add_argument('--server', '-s',
+            default='irc.chat.twitch.tv', help='The irc server to connect to')
+    ap.add_argument('--password', '-p',
+            nargs='?', default=os.environ.get('IRC_PASSWORD', None),
+            help='Password for irc server. Can be set in $IRC_PASSWORD')
+    args = ap.parse_args()
+
+    if not args.channel or not args.nick:
+        exit(ap.print_usage())
+
+    bot = LurkerBot(args.channel, args.nick, args.server, password=args.password)
+    try:
+        bot.start()
+    except KeyboardInterrupt:
+        print('Cya bro!')
 
 if __name__=='__main__':
     main()
