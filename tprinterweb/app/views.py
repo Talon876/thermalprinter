@@ -1,13 +1,19 @@
 from flask import render_template, flash, redirect, request, url_for, g
+from flask_login import login_user, logout_user, current_user, login_required
 import datetime as dt
 
-from app import app, db
+from app import app, db, lm
 from .auth import OAuthSignIn
 from .models import User
 
 @app.before_request
 def before_request():
-    g.user = None
+    g.user = current_user
+
+@lm.user_loader
+def load_user(uid):
+    app.logger.debug('Loading user {}'.format(uid))
+    return User.query.get(int(uid))
 
 @app.route('/')
 def index():
@@ -16,10 +22,19 @@ def index():
 
 @app.route('/login')
 def login():
+    if g.user is not None and g.user.is_authenticated:
+        flash('You are already logged in.')
+        return redirect(url_for('index'))
     providers = [
         { 'name': 'twitch', 'button_img': '/static/twitch-login.png'}
     ]
     return render_template('login.html', title='Login', providers=providers)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    flash('You have been logged out')
+    return redirect(url_for('index'))
 
 @app.route('/authorize/<provider>')
 def authorize(provider):
@@ -42,5 +57,6 @@ def oauth_callback(provider):
         db.session.add(user)
         db.session.commit()
     app.logger.info('Authorized {}'.format(user))
+    login_user(user)
     return redirect(url_for('index'))
 

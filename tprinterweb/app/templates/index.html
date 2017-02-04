@@ -3,7 +3,12 @@
 {% block content %}
 <h1>Thermal Printer Bot</h1>
 <p>Submit messages and images and watch them print live on a thermal printer!</p>
+
+{% if debug %}
+[twitch iframe]
+{% else %}
 <iframe src="https://player.twitch.tv/?channel=talon876" frameborder="0" allowfullscreen="true" scrolling="no"
     height="378" width="620"></iframe>
+{% endif %}
 {% endblock %}
 

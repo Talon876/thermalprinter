@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from config import basedir
 
 app = Flask(__name__)
@@ -7,6 +8,10 @@ app.config.from_object('config')
 
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
+
+@app.context_processor
+def inject_debug():
+    return {'debug': app.debug}
 
 if not app.debug:
     import logging
@@ -19,6 +24,10 @@ if not app.debug:
     app.logger.info('tprinter initializing')
 
 db = SQLAlchemy(app)
+
+lm = LoginManager()
+lm.init_app(app)
+lm.login_view = 'login'
 
 from app import views, models
 
