@@ -17,7 +17,7 @@ def index():
 @app.route('/login')
 def login():
     providers = [
-        { 'name': 'twitch', 'button_img': 'https://i.imgur.com/f9H7QoX.png' }
+        { 'name': 'twitch', 'button_img': '/static/twitch-login.png'}
     ]
     return render_template('login.html', title='Login', providers=providers)
 
