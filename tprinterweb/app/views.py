@@ -9,6 +9,10 @@ from .models import User
 @app.before_request
 def before_request():
     g.user = current_user
+    if g.user.is_authenticated:
+        g.user.last_seen = dt.datetime.utcnow()
+        db.session.add(g.user)
+        db.session.commit()
 
 @lm.user_loader
 def load_user(uid):
@@ -52,11 +56,15 @@ def oauth_callback(provider):
     social_id = '{}/{}'.format(provider, social_username)
     user = User.query.filter_by(social_id=social_id).first()
     if user is None:
-        user = User(social_id=social_id)
+        user = User(social_id=social_id,
+                    nickname=social_username)
         app.logger.info('Adding user {} to database'.format(social_id))
         db.session.add(user)
         db.session.commit()
     app.logger.info('Authorized {}'.format(user))
+    user.last_login = dt.datetime.utcnow()
+    db.session.add(user)
+    db.session.commit()
     login_user(user)
     return redirect(url_for('index'))
 

@@ -11,8 +11,8 @@ from app import db
 version = api.db_version(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
 
 # Generate new migration script based on migration repo's models
-migration = SQLALCHEMY_MIGRATE_REPO + ('/versions/%03d_migration.py' % (v + 1))
-tmp_module = imp_newmodule('old_model')
+migration = SQLALCHEMY_MIGRATE_REPO + ('/versions/%03d_migration.py' % (version + 1))
+tmp_module = imp.new_module('old_model')
 old_model = api.create_model(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
 exec(old_model, tmp_module.__dict__)
 script = api.make_update_script_for_model(SQLALCHEMY_DATABASE_URI,
