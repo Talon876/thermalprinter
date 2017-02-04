@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% for provider in providers %}
+<a href="{{ url_for('authorize', provider=provider['name']) }}">
+    <img width="180px" src="{{provider.button_img}}"/>
+</a>
+{% endfor %}
+{% endblock %}
