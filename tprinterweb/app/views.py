@@ -1,4 +1,5 @@
 import os
+import json
 from flask import render_template, flash, redirect, request, url_for, g
 from flask_login import login_user, logout_user, current_user, login_required
 import datetime as dt
@@ -56,6 +57,34 @@ def setup_bitcoin():
             btc_addr = BitcoinAddress(address=new_addr, label=label, owner=g.user)
             db.session.add(btc_addr)
             db.session.commit()
+    return redirect(url_for('profile'))
+
+@login_required
+@app.route('/bitcoin/transaction-refresh', methods=['POST'])
+def refresh_transactions():
+    if not g.user.btc_address:
+        flash('You must obtain a bitcoin address first')
+    else:
+        address_info = blockchain.address_info(g.user.btc_address.address)
+        txns = [{
+                'txn_hash': txn['hash'],
+                'block_height': txn.get('block_height', 0),
+                'timestamp': dt.datetime.utcfromtimestamp(txn['time']),
+                'amount': sum([t['value'] for t in txn['out']]),
+            } for txn in address_info['txs'] if txn.get('block_height', 0) != 0]
+
+        txn_hashes = set([t['txn_hash'] for t in txns])
+        known_hashes = set([t[0] for t in BitcoinTransaction.query.with_entities(BitcoinTransaction.txn_hash).all()])
+        new_hashes = txn_hashes - known_hashes
+        app.logger.info('Found {} new hashes for address {}'.format(', '.join(new_hashes), g.user.btc_address.address))
+        if len(new_hashes) > 0:
+            txns = [BitcoinTransaction(address=g.user.btc_address, **t) for t in txns if t['txn_hash'] in new_hashes]
+            for txn in txns:
+                db.session.add(txn)
+            db.session.commit()
+            flash('Imported {} new transaction(s)'.format(len(new_hashes)))
+        else:
+            flash('No new transactions found. Try again in a few minutes if you just sent some bitcoins.')
     return redirect(url_for('profile'))
 
 @app.route('/convert/bitcoin/<txnhash>', methods=['POST'])
