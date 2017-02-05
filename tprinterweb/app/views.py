@@ -28,7 +28,7 @@ def index():
 @app.route('/login')
 def login():
     if g.user is not None and g.user.is_authenticated:
-        flash('You are already logged in.')
+        flash('You are already logged in.', 'info')
         return redirect(url_for('index'))
     providers = [
         { 'name': 'twitch', 'button_img': '/static/twitch-login.png'}
@@ -49,13 +49,13 @@ def draw():
 @login_required
 def setup_bitcoin():
     if g.user.btc_address:
-        flash('You already have a bitcoin address setup.')
+        flash('You already have a bitcoin address setup.', 'info')
     else:
         label = '{}:{}'.format(g.user.social_id, os.urandom(3).encode('hex'))
         new_addr = blockchain.generate_address(label)
         app.logger.info('Generated address {} for user {}'.format(new_addr, g.user))
         if new_addr == "" or new_addr is None:
-            flash('Failed to generate a bitcoin address. Please try again in a few minutes.')
+            flash('Failed to generate a bitcoin address. Please try again in a few minutes.', 'warning')
         else:
             btc_addr = BitcoinAddress(address=new_addr, label=label, owner=g.user)
             db.session.add(btc_addr)
@@ -66,7 +66,7 @@ def setup_bitcoin():
 @app.route('/bitcoin/transaction-refresh', methods=['POST'])
 def refresh_transactions():
     if not g.user.btc_address:
-        flash('You must obtain a bitcoin address first')
+        flash('You must obtain a bitcoin address first', 'info')
     else:
         address_info = blockchain.address_info(g.user.btc_address.address)
         txns = [{
@@ -85,9 +85,9 @@ def refresh_transactions():
             for txn in txns:
                 db.session.add(txn)
             db.session.commit()
-            flash('Imported {} new transaction(s)'.format(len(new_hashes)))
+            flash('Imported {} new transaction(s)'.format(len(new_hashes)), 'success')
         else:
-            flash('No new transactions found. Try again in a few minutes if you just sent some bitcoins.')
+            flash('No new transactions found. Try again in a few minutes if you just sent some bitcoins.', 'info')
     return redirect(url_for('profile'))
 
 @app.route('/convert/bitcoin/<txnhash>', methods=['POST'])
@@ -95,14 +95,14 @@ def refresh_transactions():
 def bitcoin_to_credits(txnhash):
     bitcoin_txn = BitcoinTransaction.query.filter_by(txn_hash=txnhash).first()
     if bitcoin_txn is None:
-        flash('That transaction does not exist')
+        flash('That transaction does not exist', 'warning')
         return redirect(url_for('profile'))
     if bitcoin_txn.address != g.user.btc_address:
         app.logger.warn('Somebody tried to convert a transaction that wasn\'t their own')
-        flash('That transaction does not exist')
+        flash('That transaction does not exist', 'warning')
         return redirect(url_for('profile'))
     if bitcoin_txn.credit_txn is not None:
-        flash('This transaction has already been processed')
+        flash('This transaction has already been processed', 'warning')
         return redirect(url_for('profile'))
 
     bitcoin_amt = bitcoin_txn.bitcoin_amount
@@ -115,7 +115,7 @@ def bitcoin_to_credits(txnhash):
     db.session.add(bitcoin_txn)
     db.session.add(credit_txn)
     db.session.commit()
-    flash('You have received {} credits!'.format(credit_amt))
+    flash('You have received {} credits!'.format(credit_amt), 'success')
     return redirect(url_for('profile'))
 
 @app.route('/logout')
@@ -134,7 +134,7 @@ def oauth_callback(provider):
     oauth = OAuthSignIn.get_provider(provider)
     social_username = oauth.callback()
     if social_username is None:
-        flash('Login failed')
+        flash('Login failed', 'danger')
         return redirect(url_for('login'))
 
     social_id = '{}/{}'.format(provider, social_username)
