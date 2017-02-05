@@ -1,3 +1,9 @@
+{% set navigation_bar = [
+    ('index', 'home', 'Home'),
+    ('profile', 'user', 'Profile'),
+    ('draw', 'pencil', 'Draw Image')
+] %}
+{% set active_page = active_page | default('index') %}
 <!DOCTYPE html>
 <html>
     <head>
@@ -23,12 +29,10 @@
                 </div>
 
                 <div class="collapse navbar-collapse" id="nb1">
-                    <ul class="nav navbar-nav nav-pills">
-                        <li><a href="{{ url_for('index') }}"><span class="glyphicon right-buffer glyphicon-home"></span>Home</a></li>
-                        {% if g.user.is_authenticated %}
-                        <li><a href="{{ url_for('profile') }}"><span class="glyphicon right-buffer glyphicon-user"></span>Profile</a></li>
-                        {% endif %}
-                        <li><a href="{{ url_for('draw') }}"><span class="glyphicon right-buffer glyphicon-pencil"></span>Draw Image</span></a></li>
+                    <ul class="nav navbar-nav">
+                        {% for view, glyph, label in navigation_bar %}
+                        <li {% if view == active_page %} class="active" {% endif %}><a href="{{ url_for(view) }}"><span class="glyphicon right-buffer glyphicon-{{glyph}}"></span>{{label}}</a></li>
+                        {% endfor %}
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         {% if g.user.is_authenticated %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% set active_page = "profile" %}
 
 {% block content %}
 <h1>{{ g.user.nickname }}</h1>
@@ -8,7 +9,8 @@
 {% if g.user.btc_address %}
 <p>To obtain more credits, send bitcoins to <strong>{{ g.user.btc_address.address }}</strong>.</p>
 <img src="https://blockchain.info/qr?size=200&data={{ g.user.btc_address.address }}"/>
-<p>Credits may not show up immedietly. In some cases, it can take up to fifteen minutes. Click the button below after you have sent bitcoins.</p>
+<p>Credits may not show up immedietly. In some cases, it can take up to thirty minutes. Click the button below after you have sent bitcoins.</p>
+<p>In some extreme cases, especially with low value transactions, they may not show up for over an hour.</p>
 <form method="post" action="{{ url_for('refresh_transactions') }}">
     <input type="submit" value="Search for new transactions"/>
 </form>
