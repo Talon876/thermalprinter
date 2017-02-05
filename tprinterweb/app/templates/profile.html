@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ g.user.nickname }}</h1>
+<br>
+<div>Available Credits: <strong>{{ g.user.credits }}</strong></div>
+
+{% if g.user.btc_address %}
+<p>To obtain more credits, send bitcoins to <strong>{{ g.user.btc_address.address }}</strong>.</p>
+<p>Credits may not show up immedietly. Below is a list of received transactions for the above bitcoin address. Once you see your transaction appear in this list, it won't be long until you receive the credits.</p>
+
+{% if txns %}
+<ol>
+{% for txn in txns %}
+<li>{{txn.amount/100000}} mBTC @ {{txn.timestamp}} UTC</li>
+{% endfor %}
+</ol>
+{% endif %}
+
+{% else %}
+<p>Click the button below to be able to buy credits with bitcoin.</p>
+<form method="post" action="{{ url_for('setup_bitcoin') }}">
+    <input type="submit" value="Enable bitcoin payments">
+</form>
+{% endif %}
+
+{% endblock %}
+

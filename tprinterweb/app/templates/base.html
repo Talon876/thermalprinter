@@ -11,7 +11,7 @@
         <div>
             <a href="{{ url_for('index')}}">Home</a>
             {% if g.user.is_authenticated %}
-            <span>Hello, {{ g.user.nickname }}</span>
+            <a href="{{ url_for('profile')}}">{{ g.user.nickname }}</a>
             <a href="{{ url_for('logout')}}">Logout</a>
             {% else %}
             <a href="{{ url_for('login')}}">Login</a>

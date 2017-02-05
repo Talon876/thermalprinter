@@ -1,10 +1,11 @@
+import os
 from flask import render_template, flash, redirect, request, url_for, g
 from flask_login import login_user, logout_user, current_user, login_required
 import datetime as dt
 
-from app import app, db, lm
+from app import app, db, lm, blockchain
 from .auth import OAuthSignIn
-from .models import User
+from .models import User, BitcoinAddress
 
 @app.before_request
 def before_request():
@@ -33,6 +34,29 @@ def login():
         { 'name': 'twitch', 'button_img': '/static/twitch-login.png'}
     ]
     return render_template('login.html', title='Login', providers=providers)
+
+@app.route('/profile')
+@login_required
+def profile():
+    txns = g.user.btc_address.txns.all() if g.user.btc_address else []
+    return render_template('profile.html', title='Your Profile', txns=txns)
+
+@app.route('/setup-bitcoin', methods=['POST'])
+@login_required
+def setup_bitcoin():
+    if g.user.btc_address:
+        flash('You already have a bitcoin address setup.')
+    else:
+        label = '{}:{}'.format(g.user.social_id, os.urandom(3).encode('hex'))
+        new_addr = blockchain.generate_address(label)
+        app.logger.info('Generated address {} for user {}'.format(new_addr, g.user))
+        if new_addr == "" or new_addr is None:
+            flash('Failed to generate a bitcoin address. Please try again in a few minutes.')
+        else:
+            btc_addr = BitcoinAddress(address=new_addr, label=label, owner=g.user)
+            db.session.add(btc_addr)
+            db.session.commit()
+    return redirect(url_for('profile'))
 
 @app.route('/logout')
 def logout():

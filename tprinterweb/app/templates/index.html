@@ -4,6 +4,13 @@
 <h1>Thermal Printer Bot</h1>
 <p>Submit messages and images and watch them print live on a thermal printer!</p>
 
+{% if g.user.is_authenticated %}
+<p>
+Hello {{ g.user.nickname }}, you have {{ g.user.credits }} credits available to spend.<br>
+Visit <a href="{{ url_for('profile') }}">your profile</a> to obtain more credits.
+</p>
+{% endif %}
+
 {% if debug %}
 [twitch iframe]
 {% else %}

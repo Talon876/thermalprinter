@@ -29,5 +29,11 @@ lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
 
+from app import bitcoin
+blockchain = bitcoin.BlockchainInfo(
+        app.config['BITCOIN']['wallet']['guid'],
+        app.config['BITCOIN']['wallet']['password'],
+        app.config['BITCOIN']['service'])
+
 from app import views, models
 
