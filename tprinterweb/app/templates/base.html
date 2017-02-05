@@ -44,11 +44,16 @@
         <div class="container">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-            <ul>
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
+            {% for message in messages %}
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="alert alert-info alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                        {{ message }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
             {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
