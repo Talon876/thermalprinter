@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from config import basedir
+from config import basedir, USD_TO_CREDIT_RATIO
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -34,6 +34,13 @@ blockchain = bitcoin.BlockchainInfo(
         app.config['BITCOIN']['wallet']['guid'],
         app.config['BITCOIN']['wallet']['password'],
         app.config['BITCOIN']['service'])
+
+def convert_btc_to_credits(btc_amount):
+    btc_to_usd = blockchain.exchange_rate('USD')
+    usd = btc_amount * btc_to_usd
+    credits = usd * USD_TO_CREDIT_RATIO
+    app.logger.info('Converting {} btc to {} USD is {} credits'.format(btc_to_usd, usd, credits))
+    return credits
 
 from app import views, models
 

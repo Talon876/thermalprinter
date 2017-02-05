@@ -35,3 +35,7 @@ class BlockchainInfo(object):
             return num_confirms
         return 0
 
+    def exchange_rate(self, currency='USD'):
+        rates = requests.get('{}/ticker'.format(self.blockchain_info)).json()
+        return rates[currency]['15m']
+

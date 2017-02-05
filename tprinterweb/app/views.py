@@ -3,9 +3,9 @@ from flask import render_template, flash, redirect, request, url_for, g
 from flask_login import login_user, logout_user, current_user, login_required
 import datetime as dt
 
-from app import app, db, lm, blockchain
+from app import app, db, lm, blockchain, convert_btc_to_credits
 from .auth import OAuthSignIn
-from .models import User, BitcoinAddress
+from .models import User, BitcoinAddress, BitcoinTransaction, CreditTransaction
 
 @app.before_request
 def before_request():
@@ -38,7 +38,7 @@ def login():
 @app.route('/profile')
 @login_required
 def profile():
-    txns = g.user.btc_address.txns.all() if g.user.btc_address else []
+    txns = g.user.btc_address.txns.filter_by(credit_txn=None).all() if g.user.btc_address else []
     return render_template('profile.html', title='Your Profile', txns=txns)
 
 @app.route('/setup-bitcoin', methods=['POST'])
@@ -56,6 +56,34 @@ def setup_bitcoin():
             btc_addr = BitcoinAddress(address=new_addr, label=label, owner=g.user)
             db.session.add(btc_addr)
             db.session.commit()
+    return redirect(url_for('profile'))
+
+@app.route('/convert/bitcoin/<txnhash>', methods=['POST'])
+@login_required
+def bitcoin_to_credits(txnhash):
+    bitcoin_txn = BitcoinTransaction.query.filter_by(txn_hash=txnhash).first()
+    if bitcoin_txn is None:
+        flash('That transaction does not exist')
+        return redirect(url_for('profile'))
+    if bitcoin_txn.address != g.user.btc_address:
+        app.logger.warn('Somebody tried to convert a transaction that wasn\'t their own')
+        flash('That transaction does not exist')
+        return redirect(url_for('profile'))
+    if bitcoin_txn.credit_txn is not None:
+        flash('This transaction has already been processed')
+        return redirect(url_for('profile'))
+
+    bitcoin_amt = bitcoin_txn.bitcoin_amount
+    credit_amt = int(convert_btc_to_credits(bitcoin_amt))
+
+    credit_txn = CreditTransaction(credit_amount=credit_amt, is_debit=False, pending=False, owner=g.user)
+    bitcoin_txn.credit_txn = credit_txn
+    g.user.credits += credit_amt
+    db.session.add(g.user)
+    db.session.add(bitcoin_txn)
+    db.session.add(credit_txn)
+    db.session.commit()
+    flash('You have received {} credits!'.format(credit_amt))
     return redirect(url_for('profile'))
 
 @app.route('/logout')

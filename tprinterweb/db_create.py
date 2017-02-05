@@ -8,7 +8,7 @@ from app import db
 """Use this script to create the initial database repository and database"""
 
 # Uses sqlalchemy to create all models
-db.create_all()
+#db.create_all()
 
 if not os.path.exists(SQLALCHEMY_MIGRATE_REPO):
     # Create migration repository

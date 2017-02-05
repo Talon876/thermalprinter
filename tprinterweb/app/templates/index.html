@@ -6,7 +6,7 @@
 
 {% if g.user.is_authenticated %}
 <p>
-Hello {{ g.user.nickname }}, you have {{ g.user.credits }} credits available to spend.<br>
+Hello {{ g.user.nickname }}, you have <strong>{{ g.user.credits }}</strong> credits available to spend.<br>
 Visit <a href="{{ url_for('profile') }}">your profile</a> to obtain more credits.
 </p>
 {% endif %}

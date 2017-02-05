@@ -20,9 +20,9 @@ script = api.make_update_script_for_model(SQLALCHEMY_DATABASE_URI,
 open(migration, 'wt').write(script)
 
 # Upgrade database to latest version in the repistory and print the version number
-api.upgrade(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
-version = api.db_version(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
-print('New migration saved as {}'.format(migration))
-print('Current version: {}'.format(str(v)))
+#api.upgrade(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
+#version = api.db_version(SQLALCHEMY_DATABASE_URI, SQLALCHEMY_MIGRATE_REPO)
+print('New migration saved as {} - review the script then run db_upgrade'.format(migration))
+#print('Current version: {}'.format(str(v)))
 
 

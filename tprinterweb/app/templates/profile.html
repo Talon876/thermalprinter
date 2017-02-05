@@ -7,14 +7,21 @@
 
 {% if g.user.btc_address %}
 <p>To obtain more credits, send bitcoins to <strong>{{ g.user.btc_address.address }}</strong>.</p>
-<p>Credits may not show up immedietly. Below is a list of received transactions for the above bitcoin address. Once you see your transaction appear in this list, it won't be long until you receive the credits.</p>
+<p>Credits may not show up immedietly.</p>
 
-{% if txns %}
-<ol>
+{% if txns | length > 0 %}
+<div>Unprocessed transactions</div>
+<ul>
 {% for txn in txns %}
-<li>{{txn.amount/100000}} mBTC @ {{txn.timestamp}} UTC</li>
+<li>
+    {{txn.amount/100000}} mBTC @ {{txn.timestamp}} UTC
+    <form method="post" action="{{ url_for('bitcoin_to_credits', txnhash=txn.txn_hash) }}">
+        <input type="submit" value="Convert to credits"</input>
+    </form>
+</li>
+<br>
 {% endfor %}
-</ol>
+</ul>
 {% endif %}
 
 {% else %}
