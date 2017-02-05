@@ -1,0 +1,8 @@
+.navbar-nav > li > .narrow-vpadding {
+    padding-top: 7px;
+    padding-bottom: 6px
+}
+
+.right-buffer {
+    margin-right: 4px;
+}

@@ -42,6 +42,10 @@ def profile():
     txns = g.user.btc_address.txns.filter_by(credit_txn=None).all() if g.user.btc_address else []
     return render_template('profile.html', title='Your Profile', txns=txns)
 
+@app.route('/draw')
+def draw():
+    return render_template('imagedraw.html', title='Image Drawer')
+
 @app.route('/setup-bitcoin', methods=['POST'])
 @login_required
 def setup_bitcoin():

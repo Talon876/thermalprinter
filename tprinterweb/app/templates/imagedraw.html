@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Image Drawer</h1>
+<div>
+    <canvas id="app" width="384" height="64" style="border:1px solid black"></canvas>
+</div>
+<div>
+    <button id="clear">Clear</button>
+</div>
+<div>
+    <span>Image Code:</span>
+    <pre id="out"></pre>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/imagedraw.js"></script>
+{% endblock %}
+
