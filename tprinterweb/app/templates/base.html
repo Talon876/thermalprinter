@@ -1,7 +1,7 @@
 {% set navigation_bar = [
-    ('index', 'home', 'Home'),
-    ('profile', 'user', 'Profile'),
-    ('draw', 'pencil', 'Draw Image')
+    ('index', 'home', 'Home', False),
+    ('profile', 'user', 'Profile', True),
+    ('draw', 'pencil', 'Draw Image', False)
 ] %}
 {% set active_page = active_page | default('index') %}
 <!DOCTYPE html>
@@ -30,8 +30,10 @@
 
                 <div class="collapse navbar-collapse" id="nb1">
                     <ul class="nav navbar-nav">
-                        {% for view, glyph, label in navigation_bar %}
+                        {% for view, glyph, label, requser in navigation_bar %}
+                        {% if requser and g.user.is_authenticated or not requser %}
                         <li {% if view == active_page %} class="active" {% endif %}><a href="{{ url_for(view) }}"><span class="glyphicon right-buffer glyphicon-{{glyph}}"></span>{{label}}</a></li>
+                        {% endif %}
                         {% endfor %}
                     </ul>
                     <ul class="nav navbar-nav navbar-right">

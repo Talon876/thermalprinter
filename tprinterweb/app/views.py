@@ -106,7 +106,7 @@ def bitcoin_to_credits(txnhash):
         return redirect(url_for('profile'))
 
     bitcoin_amt = bitcoin_txn.bitcoin_amount
-    credit_amt = int(convert_btc_to_credits(bitcoin_amt))
+    credit_amt = int(round(convert_btc_to_credits(bitcoin_amt)))
 
     credit_txn = CreditTransaction(credit_amount=credit_amt, is_debit=False, pending=False, owner=g.user)
     bitcoin_txn.credit_txn = credit_txn
@@ -150,5 +150,7 @@ def oauth_callback(provider):
     db.session.add(user)
     db.session.commit()
     login_user(user)
+    if user.btc_address.txns.filter_by(credit_txn=None).count() > 0:
+        flash('You have unprocessed transactions ready to be converted to credits!', 'success')
     return redirect(url_for('index'))
 
