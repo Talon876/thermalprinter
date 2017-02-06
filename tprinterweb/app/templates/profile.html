@@ -2,40 +2,69 @@
 {% set active_page = "profile" %}
 
 {% block content %}
-<h1>{{ g.user.nickname }}</h1>
-<br>
-<div>Available Credits: <strong>{{ g.user.credits }}</strong></div>
+<div class="row">
+    <div class="col-lg-12">
+        <div style="display: flex; justify-content: space-between;" class="page-header">
+            <h1>{{ g.user.nickname }}</h1>
+            <h1><span class="text-success">{{ g.user.credits }}</span> credits</h1>
+        </div>
+    </div>
+</div>
 
 {% if g.user.btc_address %}
-<p>To obtain more credits, send bitcoins to <strong>{{ g.user.btc_address.address }}</strong>.</p>
-<img src="https://blockchain.info/qr?size=200&data={{ g.user.btc_address.address }}"/>
-<p>Credits may not show up immedietly. In some cases, it can take up to thirty minutes. Click the button below after you have sent bitcoins.</p>
-<p>In some extreme cases, especially with low value transactions, they may not show up for over an hour.</p>
-<form method="post" action="{{ url_for('refresh_transactions') }}">
-    <input type="submit" value="Search for new transactions"/>
-</form>
+<div class="row text-center">
+    <div class="col-lg-8 col-lg-offset-2">
+        <p>To obtain more credits, send bitcoins to <strong>{{ g.user.btc_address.address }}</strong>.</p>
+        <img src="https://blockchain.info/qr?size=200&data={{ g.user.btc_address.address }}"/>
+        <p>Credits may not show up immedietly. In some cases, it can take up to an hour but is usually completed within
+        fifteen minutes.</p>
+    </div>
+</div>
 
 {% if txns | length > 0 %}
-<hr>
-<div>Unprocessed transactions</div>
-<ul>
-{% for txn in txns %}
-<li>
-    {{txn.amount/100000}} mBTC @ {{txn.timestamp}} UTC
-    <form method="post" action="{{ url_for('bitcoin_to_credits', txnhash=txn.txn_hash) }}">
-        <input type="submit" value="Convert to credits"</input>
-    </form>
-</li>
-<br>
-{% endfor %}
-</ul>
+    <h2>New Transactions</h2>
+    <div class="text-center bottom-buffer">
+        <form method="post" action="{{ url_for('refresh_transactions') }}">
+            <button type="submit" class="btn btn-info">Scan for new transactions</button>
+        </form>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Time (UTC)</th>
+                <th>Amount (m<span class="glyphicon glyphicon-btc"></span>)</th>
+                <th>Hash</th>
+                <th>Height</th>
+                <th>Convert</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for txn in txns %}
+            <tr>
+                <td>{{ txn.timestamp }}</td>
+                <td>{{ txn.bitcoin_amount * 1000.0 }}</td>
+                <td><a href="https://blockchain.info/tx/{{ txn.txn_hash }}">{{ txn.txn_hash[:16] }}…</a></td>
+                <td>{{ txn.block_height }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('bitcoin_to_credits', txnhash=txn.txn_hash) }}">
+                        <button class="btn btn-success btn-xs" type="submit">Convert to credits</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endif %}
 
 {% else %}
-<p>Click the button below to be able to buy credits with bitcoin.</p>
-<form method="post" action="{{ url_for('setup_bitcoin') }}">
-    <input type="submit" value="Enable bitcoin payments">
-</form>
+<div class="row text-center">
+    <div class="col-lg-12">
+        <form method="post" action="{{ url_for('setup_bitcoin') }}">
+            <button type="submit" class="btn btn-success btn-lg">Enable bitcoin payments</button>
+        </form>
+    </div>
+</div>
 {% endif %}
 
 {% endblock %}
