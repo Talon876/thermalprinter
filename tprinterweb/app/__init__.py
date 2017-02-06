@@ -2,6 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import basedir, USD_TO_CREDIT_RATIO
+from tprinterbot import celeryapp
+from tprinterbot import actions as printeractions
 
 class ReverseProxied(object):
     def __init__(self, app):
@@ -13,7 +15,15 @@ class ReverseProxied(object):
             environ['wsgi.url_scheme'] = scheme
         return self.app(environ, start_response)
 
-app = Flask(__name__)
+def wrap_celery(flaskapp, celapp):
+    TaskBase = celapp.Task
+    class ContextTask(TaskBase):
+        abstract = True
+        def __call__(self, *args, **kwargs):
+            with flaskapp.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+    celapp.Task = ContextTask
+    return celapp
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -39,6 +49,13 @@ if not app.debug:
 
 db = SQLAlchemy(app)
 
+celeryapp = wrap_celery(app, celeryapp)
+celeryapp.conf.task_routes = {
+    'app.tasks.*': {
+        'queue': 'app'
+    }
+}
+
 lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
@@ -56,5 +73,5 @@ def convert_btc_to_credits(btc_amount):
     app.logger.info('Converting {} btc to {} USD is {} credits'.format(btc_to_usd, usd, credits))
     return credits
 
-from app import views, models
+from app import views, models, tasks
 
