@@ -51,7 +51,9 @@ def test_b():
 @login_required
 def profile():
     txns = g.user.btc_address.txns.filter_by(credit_txn=None).all() if g.user.btc_address else []
-    return render_template('profile.html', title='Your Profile', txns=txns)
+    credit_txns = g.user.credit_txns.order_by(CreditTransaction.timestamp.desc()).all()
+    return render_template('profile.html', title='Your Profile',
+                           txns=txns, credit_txns=credit_txns)
 
 @app.route('/draw')
 def draw():
