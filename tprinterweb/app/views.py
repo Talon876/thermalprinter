@@ -5,6 +5,8 @@ from flask_login import login_user, logout_user, current_user, login_required
 import datetime as dt
 
 from app import app, db, lm, blockchain, convert_btc_to_credits
+from app import printeractions
+from app import tasks
 from .auth import OAuthSignIn
 from .models import User, BitcoinAddress, BitcoinTransaction, CreditTransaction
 
@@ -34,6 +36,16 @@ def login():
         { 'name': 'twitch', 'button_img': '/static/twitch-login.png'}
     ]
     return render_template('login.html', title='Login', providers=providers)
+
+@app.route('/test')
+def test_print():
+    printeractions.print_message.delay(request.args.get('msg', 'hello'))
+    return redirect(url_for('index'))
+
+@app.route('/btest')
+def test_b():
+    tasks.bitcoin_info.delay()
+    return redirect(url_for('index'))
 
 @app.route('/profile')
 @login_required
