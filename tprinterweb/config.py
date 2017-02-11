@@ -30,6 +30,7 @@ BITCOIN = {
 }
 
 PORT = int(os.environ.get('PORT', 9001))
+SERVER_NAME=os.environ.get('SERVER_NAME', None)
 
 USD_TO_CREDIT_RATIO = 15000
 
