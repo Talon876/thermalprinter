@@ -22,25 +22,5 @@
     </div>
 </div>
 
-<div class="row text-center">
-    {% if debug %}
-        <div class="col-lg-12">
-            <p><a href="https://www.twitch.tv/talon876">[Embeded Twitch Player]</a></p>
-        </div>
-    {% else %}
-    <div class="col-lg-8">
-        <div class="embed-responsive embed-responsive-16by9">
-            <iframe src="https://player.twitch.tv/?channel=talon876" class="embed-responsive-item" allowfullscreen="true" scrolling="no"></iframe>
-        </div>
-    </div>
-    <div class="col-lg-4">
-        <div class="embed-responsive embed-responsive-4by3 chat-embed">
-            <iframe src="https://www.twitch.tv/talon876/chat?popout=" class="embed-responsive-item" allowfullscreen="true" height="500" scrolling="no"></iframe>
-        </div>
-    </div>
-    {% endif %}
-</div>
-
-
 {% endblock %}
 

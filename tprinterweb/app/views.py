@@ -26,6 +26,10 @@ def load_user(uid):
 def index():
     return render_template('index.html', title='Home')
 
+@app.route('/live')
+def live():
+    return render_template('live.html', title='Live')
+
 @app.route('/login')
 def login():
     if g.user is not None and g.user.is_authenticated:

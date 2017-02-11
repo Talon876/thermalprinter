@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% set active_page = "live" %}
+
+{% block content %}
+<div class="row text-center bottom-buffer">
+    <div class="col-lg-12">
+        {% if g.user.is_authenticated %}
+        <div>
+        Hello {{ g.user.nickname }}, you have <strong>{{ g.user.credits }}</strong> credits.<br>
+        Visit <a href="{{ url_for('profile') }}">your profile</a> to obtain more credits.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row text-center">
+    {% if debug %}
+        <div class="col-lg-12">
+            <p><a href="https://www.twitch.tv/talon876">[Embedded Twitch Player]</a></p>
+        </div>
+    {% else %}
+    <div class="col-lg-8">
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe src="https://player.twitch.tv/?channel=talon876" class="embed-responsive-item" allowfullscreen="true" scrolling="no"></iframe>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="embed-responsive embed-responsive-4by3 chat-embed">
+            <iframe src="https://www.twitch.tv/talon876/chat?popout=" class="embed-responsive-item" allowfullscreen="true" height="500" scrolling="no"></iframe>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}
+
