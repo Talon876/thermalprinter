@@ -163,7 +163,7 @@ def oauth_callback(provider):
     db.session.add(user)
     db.session.commit()
     login_user(user)
-    if user.btc_address.txns.filter_by(credit_txn=None).count() > 0:
+    if user.btc_address is not None and user.btc_address.txns.filter_by(credit_txn=None).count() > 0:
         flash('You have unprocessed transactions ready to be converted to credits!', 'success')
     return redirect(url_for('index'))
 
