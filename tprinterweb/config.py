@@ -7,7 +7,7 @@ TASK_QUEUE_URI=os.environ.get('TASK_QUEUE_URI', '')
 TPRINTER_DB=os.environ.get('TPRINTER_DB', os.path.join(basedir, 'tprint.db'))
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(os.path.join(basedir, 'tprint.db'))
+SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(TPRINTER_DB)
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 WTF_CSRF_ENABLED = True
