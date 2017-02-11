@@ -5,3 +5,6 @@ flask-wtf
 sqlalchemy-migrate
 requests
 rauth
+PyJWT
+cherrypy
+celery

@@ -5,7 +5,6 @@ from flask_login import login_user, logout_user, current_user, login_required
 import datetime as dt
 
 from app import app, db, lm, blockchain, convert_btc_to_credits
-from app import printeractions
 from app import tasks
 from .auth import OAuthSignIn
 from .models import User, BitcoinAddress, BitcoinTransaction, CreditTransaction
@@ -39,7 +38,7 @@ def login():
 
 @app.route('/test')
 def test_print():
-    printeractions.print_message.delay(request.args.get('msg', 'hello'))
+    #printeractions.print_message.delay(request.args.get('msg', 'hello'))
     return redirect(url_for('index'))
 
 @app.route('/btest')

@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from config import basedir, USD_TO_CREDIT_RATIO
-from tprinterbot import celeryapp
-from tprinterbot import actions as printeractions
+from config import basedir, USD_TO_CREDIT_RATIO, TASK_QUEUE_URI
+from celery import Celery
+celeryapp = Celery('tprinterbot', broker=TASK_QUEUE_URI)
 
 class ReverseProxied(object):
     def __init__(self, app):

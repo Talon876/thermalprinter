@@ -3,6 +3,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 TEMPLATES_AUTO_RELOAD = True
 
+TASK_QUEUE_URI=os.environ.get('TASK_QUEUE_URI', '')
+TPRINTER_DB=os.environ.get('TPRINTER_DB', os.path.join(basedir, 'tprint.db'))
+
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(os.path.join(basedir, 'tprint.db'))
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
