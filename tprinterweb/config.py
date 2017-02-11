@@ -29,7 +29,7 @@ BITCOIN = {
     'service': os.environ.get('WALLET_SERVICE', 'http://localhost:3000')
 }
 
-PORT = 9001
+PORT = os.environ.get('PORT', 9001)
 
 USD_TO_CREDIT_RATIO = 15000
 
