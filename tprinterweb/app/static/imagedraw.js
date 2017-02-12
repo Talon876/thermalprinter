@@ -1,103 +1,119 @@
-var pixelSize = 8;
+paper.install(window);
+(function(){ Math.clamp = function(val,min,max){return Math.max(min,Math.min(max,val));} })();
 
-function getMousePos(canvas, evt) {
-    var rect= canvas.getBoundingClientRect();
-    var x = evt.clientX - rect.left;
-    var y = evt.clientY - rect.top;
-    return {
-        x: x,
-        y: y,
-        tX: Math.floor(x / pixelSize),
-        tY: Math.floor(y / pixelSize),
-    };
-}
-
-function fillRect(ctx, color, tileX, tileY) {
-    ctx.fillStyle = color;
-    ctx.fillRect(tileX * pixelSize, tileY * pixelSize, pixelSize, pixelSize);
-}
-
-function strokeRect(ctx, color, tileX, tileY) {
-    ctx.strokeStyle = color;
-    ctx.strokeRect(tileX * pixelSize, tileY * pixelSize, pixelSize, pixelSize);
-}
-
-
+var pixelSize = 16;
 var bitmap = [];
-function init(width, height) {
-    bitmap = [];
-    for (var row = 0; row < height; row++) {
-        var line = [];
-        for (var i = 0; i < width; i++) {
-            line.push(0);
-        }
-        bitmap.push(line);
+var pencil;
+
+var init = function(width, height) {
+  bitmap = [];
+  for (var row = 0; row < height; row++) {
+    var line = [];
+    for (var col = 0; col < width; col++) {
+      var rect = new Path.Rectangle([col * pixelSize, row * pixelSize], [pixelSize, pixelSize]);
+      line.push({rect: rect, value: 0});
     }
-}
+    bitmap.push(line);
+  }
+};
 
-function render(ctx, canvas) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+var toTile = function(point) {
+  var tx = Math.clamp(Math.floor(point.x / pixelSize), 0, view.viewSize.width / pixelSize - 1);
+  var ty = Math.clamp(Math.floor(point.y / pixelSize), 0, view.viewSize.height / pixelSize - 1);
+  return {
+    tX: tx,
+    tY: ty,
+    position: [tx * pixelSize + pixelSize/2,
+               ty * pixelSize + pixelSize/2]
+  }
+};
+
+var createIndicator = function() {
+  var indicator = new Path.Rectangle([0, 0], [pixelSize, pixelSize]);
+  indicator.fillColor = new Color(1, 1, 0, 0.5);
+  indicator.strokeColor = 'black';
+  indicator.strokeWidth = 2;
+  return indicator;
+};
+
+var createPencil = function(indicator) {
+  pencil = new Tool();
+  pencil.onMouseDown = function(event) {
+    var tilePoint = toTile(event.point);
+    indicator.position = tilePoint.position;
+    var pixel = bitmap[tilePoint.tY][tilePoint.tX];
+
+    if (event.event.which === 1) {
+      pixel.rect.fillColor = 'black';
+      pixel.value = 1;
+    } else if (event.event.which === 3) {
+      pixel.rect.fillColor = 'white';
+      pixel.value = 0;
+    }
+  };
+  pencil.onMouseDrag = pencil.onMouseDown;
+  pencil.onMouseUp = function(event) {
+    indicator.bringToFront();
+  };
+  pencil.onMouseMove = function(event) {
+    var tilePoint = toTile(event.point);
+    indicator.position = tilePoint.position;
+  };
+};
+
+var setup = function(pxWidth, pxHeight) {
+  view.viewSize = [pxWidth, pxHeight];
+  init(pxWidth / pixelSize, pxHeight / pixelSize);
+};
+
+var pack = function() {
+  var data = [];
+  bitmap.forEach(function(row, y) {
+    row.forEach(function(col, x) {
+      var pixel = bitmap[y][x];
+      data.push(pixel.value);
+    });
+  });
+
+  var imageString = data.join('');
+  var chunks = imageString.match(/.{1,32}/g);
+  var packedChunks = chunks.map(function(chunk) {
+    var binaryNum = parseInt(chunk, 2);
+    var decimalNum = binaryNum.toString(16);
+    return decimalNum;
+  });
+  return packedChunks.join('-');
+};
+
+$(document).ready(function() {
+  var canvas = document.getElementById('app');
+  var width = canvas.width;
+  var height = canvas.height;
+  canvas.oncontextmenu = function(e) {
+    e.preventDefault();
+  };
+  paper.setup(canvas);
+  setup(width, height);
+
+  var indicator = createIndicator();
+  createPencil(indicator);
+
+  document.getElementById('clear').onclick = function(e) {
     bitmap.forEach(function(row, y) {
-        row.forEach(function(col, x) {
-            var pixel = bitmap[y][x];
-            if (pixel === 1) {
-                fillRect(ctx, 'black', x, y);
-            }
-        });
+      row.forEach(function(col, x) {
+        var pixel = bitmap[y][x];
+        pixel.rect.fillColor = 'white';
+        pixel.value = 0;
+      });
     });
-    document.getElementById('out').innerHTML = pack();
-}
+  };
 
-function pack() {
-    var idx = 0;
-    var data = [];
-    bitmap.forEach(function(row, y) {
-        row.forEach(function(col, x) {
-            var pixel = bitmap[y][x];
-            data.push(pixel);
-            idx += 1;
-        });
-    });
+  document.getElementById('save').onclick = function(e) {
+    var imageCode = pack();
+    console.log(imageCode);
+  }
 
-    var imageString = data.join('');
-    var chunks = imageString.match(/.{1,32}/g);
-    var packedChunks = chunks.map(function(chunk) {
-        var binaryNum = parseInt(chunk, 2);
-        var decimalNum = binaryNum.toString(16);
-        return decimalNum;
-    });
-    return packedChunks.join('-');
-}
+  pencil.activate();
+  view.draw();
+});
 
-(function() {
-    var canvas = document.getElementById('app');
-    var ctx = canvas.getContext('2d');
-    var imageWidth = canvas.width / pixelSize;
-    var imageHeight = canvas.height / pixelSize;
-    init(imageWidth, imageHeight);
-    render(ctx, canvas);
-
-    var handleEvent = function(e) {
-        var mouse = getMousePos(canvas, e);
-        render(ctx, canvas);
-        if (e.which === 1) {
-            bitmap[mouse.tY][mouse.tX] = 1;
-        } else if (e.which === 3) {
-            bitmap[mouse.tY][mouse.tX] = 0;
-            render(ctx, canvas);
-        } else {
-            ctx.fillStyle = 'yellow';
-            ctx.fillRect(mouse.tX * pixelSize + 1, mouse.tY * pixelSize + 1, pixelSize - 2, pixelSize - 2);
-        }
-    };
-
-    canvas.onmousemove = handleEvent;
-    canvas.onclick = handleEvent;
-    canvas.oncontextmenu = function(e) {
-        e.preventDefault();
-    };
-    document.getElementById('clear').onclick = function(e) {
-        init(imageWidth, imageHeight);
-        render(ctx, canvas);
-    };
-})();
