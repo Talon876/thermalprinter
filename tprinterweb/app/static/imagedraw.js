@@ -17,6 +17,38 @@ var init = function(width, height) {
   }
 };
 
+var resize = function(pxHeight) {
+  pxHeight = Math.clamp(pxHeight, 64, 1024);
+  var targetHeight = pxHeight / pixelSize;
+  var currentHeight = view.viewSize.height / pixelSize;
+  if (currentHeight == targetHeight) return;
+
+  var isGrowing = currentHeight < targetHeight;
+
+  view.viewSize = [view.viewSize.width, pxHeight];
+
+  if (isGrowing) {
+    for (var row = currentHeight; row < targetHeight; row++) {
+      var line = [];
+      for (var col = 0; col < view.viewSize.width / pixelSize; col++) {
+        var rect = new Path.Rectangle([col * pixelSize, row * pixelSize], [pixelSize, pixelSize]);
+        line.push({rect: rect, value: 0});
+      }
+      bitmap.push(line);
+    }
+  } else {
+    for (var row = currentHeight - 1; row >= targetHeight; row--) {
+      bitmap[row].forEach(function(col, x) {
+        var pixel = bitmap[row][x];
+        pixel.rect.fillColor = 'white';
+        pixel.value = 0;
+      });
+      bitmap.splice(row, 1);
+    }
+  }
+  console.log('Resized to ' + bitmap[0].length + 'x' + bitmap.length);
+};
+
 var toTile = function(point) {
   var tx = Math.clamp(Math.floor(point.x / pixelSize), 0, view.viewSize.width / pixelSize - 1);
   var ty = Math.clamp(Math.floor(point.y / pixelSize), 0, view.viewSize.height / pixelSize - 1);
@@ -111,7 +143,17 @@ $(document).ready(function() {
   document.getElementById('save').onclick = function(e) {
     var imageCode = pack();
     console.log(imageCode);
-  }
+  };
+
+  document.getElementById('shorter').onclick = function(e) {
+    var currentHeight = $('#app').height();
+    resize(currentHeight - 64);
+  };
+
+  document.getElementById('taller').onclick = function(e) {
+    var currentHeight = $('#app').height();
+    resize(currentHeight + 64);
+  };
 
   pencil.activate();
   view.draw();
